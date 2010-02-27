@@ -1,8 +1,6 @@
-import urllib, urllib2, cookielib, os
+import urllib, urllib2, os
 
-jar = cookielib.CookieJar()
-handler = urllib2.HTTPCookieProcessor(jar)
-opener = urllib2.build_opener(handler)
+opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
 urllib2.install_opener(opener)
 
 def getResponse(url, postData = None):
@@ -24,14 +22,14 @@ def getResponse(url, postData = None):
     return None
 
 class File:
-    def __init__(self, url, localpath, test=True):
+    def __init__(self, url, localpath, response=None, test=True):
         self.name = os.path.basename(localpath)
         self.web = url
         self.local = localpath
+        self.response = None
         self.oldlen = None
         self.newlen = None
         self.newcontent = None
-        self.response = None
         self.isnew = None
         self.haschanged = None
         self.test = test
