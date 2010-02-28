@@ -101,3 +101,25 @@ class File:
 
     def __str__(self):
         return self.name
+
+class Filegroup:
+    def __init__(self, remote, local, start=1, test=False):
+        self.remote = remote
+        self.local = local
+        self.start = start
+        self.test = test
+
+    def download(self):
+        i, errors = self.start, 0
+        while 1 < errors:
+            remote, local = self.getFile(i)
+            try:
+                response = urllib2.urlopen(remote)
+                File(remote, local, response=response, test=self.test)
+                i, errors = i + 1, 0
+            except urllib2.HTTPError:
+                i, errors = i + 1, errors + 1
+        return i - 3
+
+    def getFileById(self, i):
+        return self.remote.format(i), self.local.format(i)  

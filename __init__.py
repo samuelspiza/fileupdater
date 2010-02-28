@@ -1,1 +1,1 @@
-from fileupdater import File, getResponse
+from fileupdater import File, Filegroup, getResponse
