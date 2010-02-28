@@ -111,8 +111,8 @@ class Filegroup:
 
     def download(self):
         i, errors = self.start, 0
-        while 1 < errors:
-            remote, local = self.getFile(i)
+        while errors < 2:
+            remote, local = self.getFileById(i)
             try:
                 response = urllib2.urlopen(remote)
                 File(remote, local, response=response, test=self.test)
