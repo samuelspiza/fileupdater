@@ -137,7 +137,7 @@ class Filegroupiter:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def next(self):
         while self.errors < 2:
             remote, local = self.getFileById(self.i)
             try:
