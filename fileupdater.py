@@ -3,11 +3,10 @@ import urllib, urllib2, os
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
 urllib2.install_opener(opener)
 
-def getResponse(url, postData = None):
-    header = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
-               'Accept-Language': 'de',
-               'Accept-Encoding': 'utf-8'
-             }
+def getResponse(url, postData=None):
+    header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
+              'Accept-Language': 'de',
+              'Accept-Encoding': 'utf-8'}
     if(postData is not None):
         postData = urllib.urlencode(postData)
     req = urllib2.Request(url, postData, header)
@@ -22,10 +21,10 @@ def getResponse(url, postData = None):
     return None
 
 class File:
-    def __init__(self, url, localpath, response=None, test=True):
-        self.name = os.path.basename(localpath)
-        self.web = url
-        self.local = localpath
+    def __init__(self, remote, local, response=None, test=True):
+        self.name = os.path.basename(local)
+        self.remote = remote
+        self.local = local
         self.response = None
         self.oldlen = None
         self.newlen = None
@@ -79,7 +78,7 @@ class File:
 
     def getResponse(self):
         if self.response is None:
-            self.response = getResponse(self.web, None)
+            self.response = getResponse(self.remote, None)
         return self.response
 
     def download(self):
