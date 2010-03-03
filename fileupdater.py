@@ -39,7 +39,8 @@ class File:
 
     def update(self):
         if self.check():
-            self.download()
+            return self.download()
+        return False
 
     def check(self):
         return self.isNew() or self.hasChanged()
@@ -81,7 +82,7 @@ class File:
 
     def getResponse(self):
         if self.response is None:
-            self.response = safe_getResponse(self.remote, None)
+            self.response = safe_getResponse(self.remote)
         return self.response
 
     def download(self):
@@ -89,17 +90,19 @@ class File:
         if newcontent is not None:
             localdir = os.path.dirname(self.local)
             if not os.path.exists(localdir):
+                print "makedirs: " + localdir
                 if not self.test:
                     os.makedirs(localdir)
-                print "makedirs: " + localdir
+            print "write: " + self.local
             if not self.test:
                 try:
                     file = open(self.local, "w")
                     file.write(newcontent)
                     file.close()
+                    return True
                 except IOError, e:
                     print "IOError: " + e + ", " + self.local
-            print "write: " + self.local
+        return False
 
     def __str__(self):
         return self.name
@@ -110,18 +113,40 @@ class Filegroup:
         self.local = local
         self.start = start
         self.test = test
+        self.iterator = Filegroupiter(remote, local, start, test)
 
     def update(self):
-        i, errors = self.start, 0
-        while errors < 2:
-            remote, local = self.getFileById(i)
+        for f in self.iterator():
+            f.update()
+        return self.iterator.i - 3
+
+    def download(self):
+        for f in self.iterator():
+            f.download()
+        return self.iterator.i - 3
+
+class Filegroupiter:
+    def __init__(self, remote, local, start, test):
+        self.remote = remote
+        self.local = local
+        self.start = start
+        self.test = test
+        self.i = self.start
+        self.errors = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self.errors < 2:
+            remote, local = self.getFileById(self.i)
             try:
-                res = getResponse(remote, None)
-                File(remote, local, response=res, test=self.test).update()
-                i, errors = i + 1, 0
+                res = getResponse(remote)
+                self.i, self.errors = self.i + 1, 0
+                return File(remote, local, response=res, test=self.test)
             except urllib2.HTTPError:
-                i, errors = i + 1, errors + 1
-        return i - 3
+                self.i, self.errors = self.i + 1, self.errors + 1
+        raise StopIteration
 
     def getFileById(self, i):
-        return self.remote.format(i), self.local.format(i)  
+        return self.remote.format(i), self.local.format(i)
