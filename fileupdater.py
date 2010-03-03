@@ -3,15 +3,19 @@ import urllib, urllib2, os
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
 urllib2.install_opener(opener)
 
+HEADER = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
+          'Accept-Language': 'de',
+          'Accept-Encoding': 'utf-8'}
+
 def getResponse(url, postData=None):
-    header = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
-              'Accept-Language': 'de',
-              'Accept-Encoding': 'utf-8'}
     if(postData is not None):
         postData = urllib.urlencode(postData)
-    req = urllib2.Request(url, postData, header)
+    req = urllib2.Request(url, postData, HEADER)
+    return urllib2.urlopen(req)
+
+def safe_getResponse(url, postData=None):
     try:
-        return urllib2.urlopen(req)
+        return getResponse(url, postData=postData)
     except urllib2.HTTPError, e:
         print 'Error Code:', e.code
     except ValueError, e:
@@ -32,7 +36,6 @@ class File:
         self.isnew = None
         self.haschanged = None
         self.test = test
-        self.update()
 
     def update(self):
         if self.check():
@@ -78,7 +81,7 @@ class File:
 
     def getResponse(self):
         if self.response is None:
-            self.response = getResponse(self.remote, None)
+            self.response = safe_getResponse(self.remote, None)
         return self.response
 
     def download(self):
@@ -108,13 +111,13 @@ class Filegroup:
         self.start = start
         self.test = test
 
-    def download(self):
+    def update(self):
         i, errors = self.start, 0
         while errors < 2:
             remote, local = self.getFileById(i)
             try:
-                response = urllib2.urlopen(remote)
-                File(remote, local, response=response, test=self.test)
+                res = getResponse(remote, None)
+                File(remote, local, response=res, test=self.test).update()
                 i, errors = i + 1, 0
             except urllib2.HTTPError:
                 i, errors = i + 1, errors + 1
