@@ -116,12 +116,12 @@ class Filegroup:
         self.iterator = Filegroupiter(remote, local, start, test)
 
     def update(self):
-        for f in self.iterator():
+        for f in self.iterator:
             f.update()
         return self.iterator.i - 3
 
     def download(self):
-        for f in self.iterator():
+        for f in self.iterator:
             f.download()
         return self.iterator.i - 3
 
