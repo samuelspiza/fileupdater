@@ -144,7 +144,7 @@ class Filegroupiter:
             try:
                 res = getResponse(remote)
                 self.i, self.errors = self.i + 1, 0
-                f = File(remote, local, response=res, test=self.test)
+                f = File(remote, local, response=res, test=self.group.test)
                 self.files.append(f)
                 return f
             except urllib2.HTTPError:
