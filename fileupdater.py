@@ -113,40 +113,44 @@ class Filegroup:
         self.local = local
         self.start = start
         self.test = test
-        self.iterator = Filegroupiter(remote, local, start, test)
+        self.iterator = Filegroupiter(self)
 
     def update(self):
         for f in self.iterator:
             f.update()
-        return self.iterator.i - 3
+        return len(self.iterator)
 
     def download(self):
         for f in self.iterator:
             f.download()
-        return self.iterator.i - 3
+        return len(self.iterator)
+
+    def getFileById(self, i):
+        return self.remote.format(i), self.local.format(i)
 
 class Filegroupiter:
-    def __init__(self, remote, local, start, test):
-        self.remote = remote
-        self.local = local
-        self.start = start
-        self.test = test
-        self.i = self.start
+    def __init__(self, group):
+        self.group = group
+        self.i = self.group.start
         self.errors = 0
+        self.files = []
 
     def __iter__(self):
         return self
 
     def next(self):
         while self.errors < 2:
-            remote, local = self.getFileById(self.i)
+            remote, local = self.group.getFileById(self.i)
             try:
                 res = getResponse(remote)
                 self.i, self.errors = self.i + 1, 0
-                return File(remote, local, response=res, test=self.test)
+                f = File(remote, local, response=res, test=self.test)
+                self.files.append(f)
+                return f
             except urllib2.HTTPError:
                 self.i, self.errors = self.i + 1, self.errors + 1
+        self.group.iterator = self.files
         raise StopIteration
 
-    def getFileById(self, i):
-        return self.remote.format(i), self.local.format(i)
+    def __len__(self):
+        return self.i - 3
