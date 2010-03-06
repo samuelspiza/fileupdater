@@ -7,6 +7,29 @@ HEADER = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
           'Accept-Language': 'de',
           'Accept-Encoding': 'utf-8'}
 
+def absUrl(site, href):
+    href = href.replace("\\", "/")
+    if href.startswith("http://") or href.startswith("https://"):
+        return href
+    comps = href.split("/")
+    if href[:1] == "/":
+        comps[0:1] = site.split("/")[:3]
+    else:
+        comps[0:0] = site.split("/")[:-1]
+    i = 2
+    while i < len(comps):
+        if comps[i] in ('.', ''):
+            del comps[i]
+        elif comps[i] == '..':
+            if i > 0 and comps[i-1] != '..':
+                del comps[i-1:i+1]
+                i -= 1
+            else:
+                i += 1
+        else:
+            i += 1
+    return "/".join(comps)
+
 def getResponse(url, postData=None):
     if(postData is not None):
         postData = urllib.urlencode(postData)
