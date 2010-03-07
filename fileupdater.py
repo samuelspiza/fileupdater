@@ -18,7 +18,7 @@ def absUrl(site, href):
         comps[0:0] = site.split("/")[:-1]
     i = 2
     while i < len(comps):
-        if comps[i] in ('.', ''):
+        if comps[i] in ('.'):
             del comps[i]
         elif comps[i] == '..':
             if i > 0 and comps[i-1] != '..':
