@@ -48,7 +48,7 @@ def safe_getResponse(url, postData=None):
     return None
 
 class File:
-    def __init__(self, remote, local, response=None, test=True):
+    def __init__(self, remote, local, response=None, text=False, test=True):
         self.name = os.path.basename(local)
         self.remote = remote
         self.local = local
@@ -58,6 +58,7 @@ class File:
         self.newcontent = None
         self.isnew = None
         self.haschanged = None
+        self.text = text
         self.test = test
 
     def update(self):
@@ -79,7 +80,8 @@ class File:
                 self.haschanged = False
             else:
                 newlen = self.getNewLen()
-                self.haschanged = newlen is not None and (self.getOldLen() != newlen)
+                self.haschanged = newlen is not None and \
+                                  self.getOldLen() != newlen
         return self.haschanged
 
     def getOldLen(self):
@@ -119,7 +121,10 @@ class File:
             print "write: " + self.local
             if not self.test:
                 try:
-                    file = open(self.local, "w")
+                    if self.text:
+                        file = open(self.local, "w")
+                    else:
+                        file = open(self.local, "wb")
                     file.write(newcontent)
                     file.close()
                     return True
@@ -131,10 +136,11 @@ class File:
         return self.name
 
 class Filegroup:
-    def __init__(self, remote, local, start=1, test=False):
+    def __init__(self, remote, local, start=1, text=False, test=False):
         self.remote = remote
         self.local = local
         self.start = start
+        self.text = text
         self.test = test
         self.iterator = Filegroupiter(self)
 
@@ -167,7 +173,8 @@ class Filegroupiter:
             try:
                 res = getResponse(remote)
                 self.i, self.errors = self.i + 1, 0
-                f = File(remote, local, response=res, test=self.group.test)
+                f = File(remote, local, response=res, text=self.group.text, 
+                         test=self.group.test)
                 self.files.append(f)
                 return f
             except urllib2.HTTPError:
