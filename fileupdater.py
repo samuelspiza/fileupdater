@@ -33,10 +33,10 @@ def absUrl(site, href):
             i += 1
     return "/".join(comps)
 
-def absFindall(url, regexp, response=None):
-    if response is None:
-        response = safe_getResponse(url)
-    return [absUrl(url, m) for m in re.findall(regexp, response.read())]
+def absFindall(url, regexp, content=None):
+    if content is None:
+        content = safe_getResponse(url).read()
+    return [absUrl(url, m) for m in re.findall(regexp, content)]
 
 def getResponse(url, postData=None):
     if(postData is not None):
