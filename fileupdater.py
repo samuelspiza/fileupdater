@@ -10,6 +10,9 @@ HEADER = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
           'Accept-Language': 'de',
           'Accept-Encoding': 'utf-8'}
 
+class ArgumentError(Exception):
+    pass
+
 def absUrl(site, href):
     href = href.replace("\\", "/")
     if href.startswith("http://") or href.startswith("https://"):
@@ -33,10 +36,15 @@ def absUrl(site, href):
             i += 1
     return "/".join(comps)
 
-def absFindall(url, regexp, content=None):
+def absFindall(url, regexp=None, regobj=None, content=None):
     if content is None:
         content = safe_getResponse(url).read()
-    return [absUrl(url, m) for m in re.findall(regexp, content)]
+    if regexp is not None:
+        return [absUrl(url, m) for m in re.findall(regexp, content)]
+    elif regobj is not None:
+        return [absUrl(url, m) for m in regobj.findall(content)]
+    else:
+        raise ArgumentError, "'regexp' and 'regobj' are None."
 
 def getResponse(url, postData=None):
     if(postData is not None):
