@@ -1,3 +1,30 @@
+# This is free and unencumbered software released into the public domain.
+# 
+# Anyone is free to copy, modify, publish, use, compile, sell, or
+# distribute this software, either in source code form or as a compiled
+# binary, for any purpose, commercial or non-commercial, and by any
+# means.
+# 
+# In jurisdictions that recognize copyright laws, the author or authors
+# of this software dedicate any and all copyright interest in the
+# software to the public domain. We make this dedication for the benefit
+# of the public at large and to the detriment of our heirs and
+# successors. We intend this dedication to be an overt act of
+# relinquishment in perpetuity of all present and future rights to this
+# software under copyright law.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+# 
+# For more information, please refer to <http://unlicense.org/>
+#
+"""fileupdater - a package for downloading and updating files"""
+
 __all__ = ["File","Filegroup","absUrl","absFindall","getResponse",
            "safe_getResponse"]
 
@@ -6,7 +33,7 @@ import urllib, urllib2, os, re
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
 urllib2.install_opener(opener)
 
-HEADER = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0',
+HEADER = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
           'Accept-Language': 'de',
           'Accept-Encoding': 'utf-8'}
 
@@ -14,6 +41,12 @@ class ArgumentError(Exception):
     pass
 
 def absUrl(site, href):
+    """Returns an absolute URL.
+    
+    It takes the a site and a path (e.g. argument to an 'href' or 'src'
+    parameter of a HTML tag). The absolute URL will be composed in the same way
+    a web browser does.
+    """
     href = href.replace("\\", "/")
     if href.startswith("http://") or href.startswith("https://"):
         return href
@@ -37,6 +70,16 @@ def absUrl(site, href):
     return "/".join(comps)
 
 def absFindall(url, regexp=None, regobj=None, content=None):
+    """Returns a list of absolute URLs of all found paths matching a given
+    regular expression in the content of a web site.
+    
+    The regular expression can be passed as a string (regexp) or as a
+    precompiled regexObject (regobj). Either 'regexp' or 'regobj' must not be
+    'None'. If both are not 'None', 'regexp' will be used.
+    
+    If the content of the page (url) was retrieved before this function is
+    called, it can be passed as 'content' to minimize HTTP-requests.
+    """
     if content is None:
         content = safe_getResponse(url).read()
     if regexp is not None:
@@ -44,7 +87,7 @@ def absFindall(url, regexp=None, regobj=None, content=None):
     elif regobj is not None:
         return [absUrl(url, m) for m in regobj.findall(content)]
     else:
-        raise ArgumentError, "'regexp' and 'regobj' are None."
+        raise ArgumentError, "'regexp' and 'regobj' are both None."
 
 def getResponse(url, postData=None):
     if(postData is not None):
@@ -56,11 +99,11 @@ def safe_getResponse(url, postData=None):
     try:
         return getResponse(url, postData=postData)
     except urllib2.HTTPError, e:
-        print 'Error Code:', e.code
+        print "Error Code: %s" % e.code
     except ValueError, e:
-        print "invalid URL:" + url
+        print e
     except urllib2.URLError, e:
-        print 'Reason:', e.reason
+        print "Reason: %s" % e.reason
     return None
 
 class File:
