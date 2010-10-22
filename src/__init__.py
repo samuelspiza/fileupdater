@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __all__ = ["File","Filegroup","absUrl","absFindall","getResponse",
            "safe_getResponse"]
 
