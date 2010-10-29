@@ -134,14 +134,17 @@ class File:
         self.name = os.path.basename(local)
         self.remote = remote
         self.local = local
+        self.text = text
+        self.test = test
+        self.clean()
+
+    def clean(self):
         self.response = None
         self.oldlen = None
         self.newlen = None
         self.newcontent = None
         self.isnew = None
         self.haschanged = None
-        self.text = text
-        self.test = test
 
     def update(self):
         if self.check():
