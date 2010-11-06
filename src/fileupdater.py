@@ -25,10 +25,13 @@
 #
 # For more information, please refer to <http://unlicense.org/>
 #
-"""fileupdater - a package for downloading and updating files"""
+"""File Updater
+
+A package for downloading and updating files.
+"""
 
 __author__ = "Samuel Spiza <sam.spiza@gmail.com>"
-__version__ = "0.1.2"
+__version__ = "0.1.2a"
 __all__ = ["File","Filegroup","absUrl","absFindall","getResponse",
            "safe_getResponse"]
 
